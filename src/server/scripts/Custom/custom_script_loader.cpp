@@ -35,7 +35,7 @@ void AddSC_Creature_Script();
 void AddSC_npc_promo();
 void AddSC_REFORGER_NPC();
 void AddSC_Transmogrification();
-
+void AddSC_cs_promo();
 void AddCustomScripts()
 {
 	AddSC_arena_spectator_script();
@@ -51,5 +51,6 @@ void AddCustomScripts()
 	AddSC_Creature_Script();
 	AddSC_npc_promo();
 	AddSC_REFORGER_NPC();
-   AddSC_Transmogrification();
+    AddSC_Transmogrification();
+    AddSC_cs_promo();
 }
