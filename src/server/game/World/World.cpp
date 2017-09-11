@@ -68,6 +68,7 @@
 #include "WeatherMgr.h"
 #include "WorldSession.h"
 #include "M2Stores.h"
+#include "AnticheatMgr.h"
 
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1349,6 +1350,8 @@ void World::LoadConfigSettings(bool reload)
         m_timers[WUPDATE_AUTOBROADCAST].Reset();
     }
 
+
+	
     // MySQL ping time interval
     m_int_configs[CONFIG_DB_PING_INTERVAL] = sConfigMgr->GetIntDefault("MaxPingTime", 30);
 
@@ -1357,6 +1360,12 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowOverwrite", true);
     m_bool_configs[CONFIG_UI_QUESTLEVELS_IN_DIALOGS] = sConfigMgr->GetBoolDefault("UI.ShowQuestLevelsInDialogs", false);
 
+	
+	m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = sConfigMgr->GetBoolDefault("Anticheat.Enable", true);
+	m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = sConfigMgr->GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
+    m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = sConfigMgr->GetIntDefault("Anticheat.DetectionsEnabled",31);
+    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = sConfigMgr->GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
+	
     // Wintergrasp battlefield
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = sConfigMgr->GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = sConfigMgr->GetIntDefault("Wintergrasp.PlayerMax", 100);
@@ -1911,6 +1920,8 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_AHBOT].SetInterval(getIntConfig(CONFIG_AHBOT_UPDATE_INTERVAL) * IN_MILLISECONDS); // every 20 sec
 
     m_timers[WUPDATE_PINGDB].SetInterval(getIntConfig(CONFIG_DB_PING_INTERVAL)*MINUTE*IN_MILLISECONDS);    // Mysql ping time in minutes
+	
+	
 
     m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
 
@@ -2080,6 +2091,7 @@ void World::RecordTimeDiff(std::string const& text)
 
     m_currentTime = thisTime;
 }
+
 
 void World::LoadAutobroadcasts()
 {
@@ -2267,6 +2279,9 @@ void World::Update(uint32 diff)
         }
     }
 
+	
+
+	
     sBattlegroundMgr->Update(diff);
     RecordTimeDiff("UpdateBattlegroundMgr");
 
@@ -2318,6 +2333,7 @@ void World::Update(uint32 diff)
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
     }
+
 
     // update the instance reset times
     sInstanceSaveMgr->Update();
@@ -2885,6 +2901,9 @@ void World::ProcessCliCommands()
     }
 }
 
+
+
+//zero
 void World::SendAutoBroadcast()
 {
     if (m_Autobroadcasts.empty())
@@ -3092,6 +3111,7 @@ void World::ResetDailyQuests()
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
+	sAnticheatMgr->ResetDailyReportStates();
 }
 
 void World::LoadDBAllowedSecurityLevel()

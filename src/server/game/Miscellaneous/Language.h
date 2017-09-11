@@ -1225,6 +1225,6 @@ enum TrinityStrings
     LANG_SHUTDOWN_CANCELLED                       = 11018,
 	
 	LANG_PERSONALIZADO							  = 20000,
-	LANG_PVPKILL_SYSTEM                             = 20001
+	LANG_PVPKILL_SYSTEM                           = 20001
 };
 #endif

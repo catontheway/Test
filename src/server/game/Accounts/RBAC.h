@@ -761,6 +761,9 @@ enum RBACPermissions
 	RBAC_PERM_COMMAND_SPECTATE_RESET						 = 1024,
 	RBAC_PERM_COMMAND_SPECTATE_LEAVE						 = 1025,
 
+	//chat web
+	RBAC_PERM_COMMAND_WORLDCHAT_WEB                          = 1028,
+ 
     // custom permissions 1000+
     RBAC_PERM_MAX
 };

@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+ 
 // This is where scripts' loading functions should be declared:
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
@@ -56,6 +58,8 @@ void AddSC_tele_commandscript();
 void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
+void AddSC_anticheat_commandscript();
+void AddSC_reload_item_npc();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -101,4 +105,6 @@ void AddCommandsScripts()
     AddSC_ticket_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
+	AddSC_anticheat_commandscript();
+	AddSC_reload_item_npc();
 }

@@ -16,41 +16,48 @@
  */
 
 // This is where scripts' loading functions should be declared:
-
-
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
-
-void AddSC_arena_spectator_script();
-void AddSC_System_Censure();
+void AddSC_Transmogrification();
+void AddSC_Npc_Tools();
 void AddSC_World_Chat();
+void AddSC_System_Censure();
+void AddSC_Boss_Announcer();
+void AddSC_Beastmaster_NPC();
+void AddSC_World_Boss();
+void AddSC_arena_spectator_script();
+void AddSC_LearnSpellsOnLevelUp();
 void AddSC_accontmounts();
 void AddSC_npc_blood_money();
-void AddSC_Boss_Announcer();
 void AddSC_item_enchant_visuals();
 void AddSC_guildmaster();
 void AddSC_npc_arena_setup();
 void AddSC_npc_tic_tac_toe();
 void AddSC_Creature_Script();
 void AddSC_npc_promo();
-void AddSC_REFORGER_NPC();
-void AddSC_Transmogrification();
 void AddSC_cs_promo();
+void AddSC_soccer();
+void AddSC_World_Invacion_dalaran();
+
+// The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
-	AddSC_arena_spectator_script();
-	AddSC_System_Censure();
+    AddSC_Transmogrification();
 	AddSC_World_Chat();
+	AddSC_System_Censure();
+	AddSC_Boss_Announcer();
+	AddSC_Beastmaster_NPC();
+	AddSC_World_Boss();
+	AddSC_arena_spectator_script();
+	AddSC_LearnSpellsOnLevelUp();
 	AddSC_accontmounts();
 	AddSC_npc_blood_money();
-	AddSC_Boss_Announcer();
-    AddSC_item_enchant_visuals();
+	AddSC_item_enchant_visuals();
 	AddSC_guildmaster();
 	AddSC_npc_arena_setup();
 	AddSC_npc_tic_tac_toe();
 	AddSC_Creature_Script();
 	AddSC_npc_promo();
-	AddSC_REFORGER_NPC();
-    AddSC_Transmogrification();
-    AddSC_cs_promo();
+	AddSC_cs_promo();
+	AddSC_soccer();
+	AddSC_World_Invacion_dalaran();
 }

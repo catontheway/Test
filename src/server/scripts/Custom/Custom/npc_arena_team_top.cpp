@@ -3,7 +3,7 @@
 #include "PlayerDump.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "Custom/promo/promo.h"
+#include "Custom/zeros/promo.h"
 
 using namespace std;
 

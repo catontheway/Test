@@ -26,7 +26,7 @@ Cant transmogrify rediculus items // Foereaper: would be fun to stab people with
 #include "GameEventMgr.h"
 #include "GossipDef.h"
 #include "Item.h"
-#include "ItemTemplate.h"
+#include "ItemPrototype.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
@@ -426,9 +426,9 @@ namespace
         {
             uint32 lowguid = player->GetGUID().GetCounter();
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("DELETE FROM `custom_transmogrification` WHERE `Owner` = %u", lowguid);
+            //trans->PAppend("DELETE FROM `custom_transmogrification` WHERE `Owner` = %u", lowguid);
 #ifdef PRESETS
-            trans->PAppend("DELETE FROM `custom_transmogrification_sets` WHERE `Owner` = %u", lowguid);
+            //trans->PAppend("DELETE FROM `custom_transmogrification_sets` WHERE `Owner` = %u", lowguid);
 #endif
 
             if (!player->transmogMap.empty())

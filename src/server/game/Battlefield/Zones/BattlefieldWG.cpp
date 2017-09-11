@@ -915,13 +915,21 @@ void BattlefieldWG::ProcessEvent(WorldObject* obj, uint32 eventId)
         return;
 
     // On click on titan relic
-    if (go->GetEntry() == GO_WINTERGRASP_TITAN_S_RELIC)
-    {
-        if (CanInteractWithRelic())
-            EndBattle(false);
-        else if (GameObject* relic = GetRelic())
-            relic->SetRespawnTime(RESPAWN_IMMEDIATELY);
-    }
+    if (go->GetEntry() == GO_WINTERGRASP_TITAN_S_RELIC || go->GetEntry() == 192829)
+	{
+		if (CanInteractWithRelic())
+			EndBattle(false);
+		else if (GameObject* relic = GetRelic())
+			relic->SetRespawnTime(RESPAWN_IMMEDIATELY);
+	}
+	else if (obj->GetEntry() == 192829) {
+		if (CanInteractWithRelic()) {
+			EndBattle(false);
+		}
+		else if (GameObject* relic = GetRelic()) {
+			relic->SetRespawnTime(RESPAWN_IMMEDIATELY);
+		}
+	}
 
     // if destroy or damage event, search the wall/tower and update worldstate/send warning message
     for (BfWGGameObjectBuilding* building : BuildingsInZone)

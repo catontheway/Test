@@ -33,6 +33,7 @@
 #include "World.h"
 #include "WardenWin.h"
 #include "Appender.h"
+#include "AnticheatMgr.h"
 
 // Movement anticheat defines
 //#define ANTICHEAT_DEBUG
@@ -375,6 +376,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
         plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
+	   if (plrMover)
+        sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
+	
     uint32 mstime = getMSTime();
     /*----------------------*/
     if (m_clientTimeDelay == 0)
@@ -387,7 +391,17 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
     movementInfo.flags, LookupOpcodeName(opcode), movementInfo.transport.pos.m_positionX, movementInfo.transport.pos.m_positionY, movementInfo.transport.pos.m_positionZ, movementInfo.transport.pos.m_orientation);
     TC_LOG_WARN("cheat", "AC2-%s Transport > GUID: (low)%d - (high)%d",
         plrMover->GetName(), GUID_LOPART(movementInfo.transport.guid), GUID_HIPART(movementInfo.transport.guid));
-    #endif
+   
+	// display warning at the center of the screen, hacky way.
+	std::string str = "";
+	str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+	WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+	data << str;
+	sWorld->SendGlobalGMMessage(&data);
+
+	plrMover->m_anti_AlarmCount = 0;
+
+	#endif
 
     if (plrMover)
     {
@@ -422,6 +436,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
             const int32 sync_time = plrMover->m_anti_DeltaClientTime - plrMover->m_anti_DeltaServerTime;
 
             #ifdef ANTICHEAT_DEBUG
+			// display warning at the center of the screen, hacky way.
+			std::string str = "";
+			str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+			WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+			data << str;
+			sWorld->SendGlobalGMMessage(&data);
+
+			plrMover->m_anti_AlarmCount = 0;
             TC_LOG_WARN("cheat", "AC2-%s Time > cClientTimeDelta: %d, cServerTime: %d | deltaC: %d - deltaS: %d | SyncTime: %d", plrMover->GetName(), cClientTimeDelta, cServerTime, plrMover->m_anti_DeltaClientTime, plrMover->m_anti_DeltaServerTime, sync_time);
             #endif
 
@@ -437,6 +459,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
                 if (bMistimingModulo)
                 {
                     #ifdef ANTICHEAT_EXCEPTION_INFO
+					// display warning at the center of the screen, hacky way.
+					std::string str = "";
+					str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+					WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+					data << str;
+					sWorld->SendGlobalGMMessage(&data);
+
+					plrMover->m_anti_AlarmCount = 0;
                     TC_LOG_WARN("cheat", "AC2-%s, mistiming exception #%d, mistiming: %dms Action: %s", plrMover->GetName().c_str(),  plrMover->m_anti_MistimingCount, sync_time, &Warden::Penalty);
                     #endif
                     check_passed = false;
@@ -536,6 +566,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
                 if (no_fly_auras && no_swim_in_water && plrMover->m_anti_JumpBaseZ != 0 && JumpHeight < plrMover->m_anti_Last_VSpeed)
                 {
                     #ifdef ANTICHEAT_EXCEPTION_INFO
+					// display warning at the center of the screen, hacky way.
+					std::string str = "";
+					str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+					WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+					data << str;
+					sWorld->SendGlobalGMMessage(&data);
+
+					plrMover->m_anti_AlarmCount = 0;
                     TC_LOG_WARN("cheat", "AC2-%s, AntiGravity exception. JumpHeight = %f, Allowed Vertical Speed = %f",
                         plrMover->GetName().c_str(), JumpHeight, plrMover->m_anti_Last_VSpeed);
                     #endif
@@ -569,7 +607,26 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
                             // don't process new jump packet
                             check_passed = false;
                             #ifdef ANTICHEAT_EXCEPTION_INFO
+							// display warning at the center of the screen, hacky way.
+							std::string str = "";
+							str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+							WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+							data << str;
+							sWorld->SendGlobalGMMessage(&data);
+
+							plrMover->m_anti_AlarmCount = 0;
                             TC_LOG_WARN("cheat", "AC2-%s, Multijump exception.", plrMover->GetName().c_str(), JumpHeight, plrMover->m_anti_Last_VSpeed);
+							
+							//sWorld->SendGlobalGMMessage("cheat", "AC2-%s, Multijump exception.", plrMover->GetName().c_str(), JumpHeight, plrMover->m_anti_Last_VSpeed);
+
+
+							// display warning at the center of the screen, hacky way.
+							//std::string
+							str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+							WorldPacket data1(SMSG_NOTIFICATION, (str.size() + 1));
+							data1 << str;
+							sWorld->SendGlobalGMMessage(&data1);
+
                             #endif
                             //if (vehMover)
                             //    vehMover->Die();
@@ -606,9 +663,25 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
                     if (real_delta < 4900.0f)
                     {
                         TC_LOG_WARN("cheat", "AC2-%s, speed exception | cDelta=%f aDelta=%f | cSpeed=%f lSpeed=%f deltaTime=%f", plrMover->GetName().c_str(), real_delta, allowed_delta, current_speed, plrMover->m_anti_Last_HSpeed, time_delta);
-                    } else {
+						// display warning at the center of the screen, hacky way.
+						std::string str = "";
+						str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+						WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+						data << str;
+						sWorld->SendGlobalGMMessage(&data);
+
+						plrMover->m_anti_AlarmCount = 0;
+					} else {
                         TC_LOG_WARN("cheat", "AC2-%s, teleport exception | cDelta=%f aDelta=%f | cSpeed=%f lSpeed=%f deltaTime=%f", plrMover->GetName().c_str(), real_delta, allowed_delta, current_speed, plrMover->m_anti_Last_HSpeed, time_delta);
-                    }
+						// display warning at the center of the screen, hacky way.
+						std::string str = "";
+						str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+						WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+						data << str;
+						sWorld->SendGlobalGMMessage(&data);
+
+						plrMover->m_anti_AlarmCount = 0;
+					}
                     #endif
                     check_passed = false;
                     //if (vehMover)
@@ -621,6 +694,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
                 {
                     #ifdef ANTICHEAT_EXCEPTION_INFO
                     TC_LOG_WARN("cheat", "AC2-%s, mountain exception | tg_z=%f", plrMover->GetName().c_str(), tg_z);
+					// display warning at the center of the screen, hacky way.
+					std::string str = "";
+					str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+					WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+					data << str;
+					sWorld->SendGlobalGMMessage(&data);
+
+					plrMover->m_anti_AlarmCount = 0;
                     #endif
                     check_passed = false;
                 //    if (vehMover)
@@ -664,6 +745,16 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
                     #ifdef ANTICHEAT_EXCEPTION_INFO
                     TC_LOG_WARN("cheat", "AC2-%s, waterwalk exception. [%X]{SPELL_AURA_WATER_WALK=[%X]}",
                         plrMover->GetName().c_str(), movementInfo.flags, plrMover->HasAuraType(SPELL_AURA_WATER_WALK));
+
+					// display warning at the center of the screen, hacky way.
+					std::string str = "";
+					str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+					WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+					data << str;
+					sWorld->SendGlobalGMMessage(&data);
+
+					plrMover->m_anti_AlarmCount = 0;
+
                     #endif
                     check_passed = false;
                     //if (vehMover)
@@ -696,15 +787,29 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
                         {
                             #ifdef ANTICHEAT_DEBUG
                             TC_LOG_WARN("cheat", "AC2-%s, teleport to plane exception. plane_z: %f", plrMover->GetName(), plane_z);
+
+							// display warning at the center of the screen, hacky way.
+							std::string str = "";
+							str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+							WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+							data << str;
+							sWorld->SendGlobalGMMessage(&data);
+
+							plrMover->m_anti_AlarmCount = 0;
+
                             #endif
                             #ifdef ANTICHEAT_EXCEPTION_INFO
                             if (plrMover->m_anti_TeleToPlane_Count > World::GetTeleportToPlaneAlarms())
                             {
                                 TC_LOG_WARN("cheat", "AC2-%s, teleport to plane exception. Exception count: %d", plrMover->GetName().c_str(), plrMover->m_anti_TeleToPlane_Count);
-                                /* Disabled, not passive at all, and apparently causing crashes:
-                                sWorld.SendWorldText(3, strcat("Kicking cheater: ", plrMover->GetName()));
-                                KickPlayer();
-                                return; */
+								// display warning at the center of the screen, hacky way.
+								std::string str = "";
+								str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+								WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+								data << str;
+								sWorld->SendGlobalGMMessage(&data);
+
+								plrMover->m_anti_AlarmCount = 0;
                             }
                             #endif
                             ++(plrMover->m_anti_TeleToPlane_Count);
@@ -789,6 +894,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
         if (plrMover->m_anti_AlarmCount > 0)
         {
             TC_LOG_WARN("cheat", "AC2-%s produce %d anticheat alarms.", plrMover->GetName().c_str(), plrMover->m_anti_AlarmCount);
+
+			// display warning at the center of the screen, hacky way.
+			std::string str = "";
+			str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+			WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+			data << str;
+			sWorld->SendGlobalGMMessage(&data);
+
             plrMover->m_anti_AlarmCount = 0;
         }
         // end movement anticheat
@@ -942,7 +1055,15 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
     _player->SetUnitMovementFlags(movementInfo.flags);
     #ifdef ANTICHEAT_DEBUG
     TC_LOG_WARN("cheat", "%s CMSG_MOVE_KNOCK_BACK_ACK: time: %d, fall time: %d | xyzo: %f,%f,%fo(%f) flags[%X] Vspeed: %f, Hspeed: %f", GetPlayer()->GetName(), movementInfo.time, movementInfo.fallTime, movementInfo.pos.m_positionX, movementInfo.pos.m_positionY, movementInfo.pos.m_positionZ, movementInfo.pos.m_orientation, movementInfo.flags, movementInfo.jump.zspeed, movementInfo.jump.xyspeed);
-    #endif
+	// display warning at the center of the screen, hacky way.
+	std::string str = "";
+	str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plrMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+	WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+	data << str;
+	sWorld->SendGlobalGMMessage(&data);
+
+	plrMover->m_anti_AlarmCount = 0;
+	#endif
 	
     _player->m_movementInfo = movementInfo;
     _player->m_anti_Last_HSpeed = movementInfo.jump.xyspeed;

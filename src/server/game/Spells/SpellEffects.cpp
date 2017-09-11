@@ -26,6 +26,7 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Player.h"
+#include "AnticheatMgr.h"
 #include "SkillExtraItems.h"
 #include "Unit.h"
 #include "Spell.h"
