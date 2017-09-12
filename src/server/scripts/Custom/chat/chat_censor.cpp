@@ -4,8 +4,7 @@
 #include "Language.h"
 #include "chat_censor.h"
 #include "Player.h"
-#include "promo.h"
-
+#include "../promo/promo.h"
 
 filtrochat* filtrochat::instance()
 {

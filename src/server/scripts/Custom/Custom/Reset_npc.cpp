@@ -1,4 +1,4 @@
-#include "Custom/zeros/promo.h"
+
 class Restart : public CreatureScript 
 { 
     public: 

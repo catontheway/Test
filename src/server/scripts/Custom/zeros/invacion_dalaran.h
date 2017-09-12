@@ -20,6 +20,16 @@ typedef struct Invacion_dalaran_npc
 };
 
 
+typedef struct Invacion_dalaran_registro
+{
+	void Scantidad(int c) { //int c = cantidad total en consulta  
+		cantidad = c;
+		Guid = new int[c];
+	}
+	int cantidad; 
+	int* Guid;
+};
+
 
 typedef struct Invacion_dalaran_tele
 {
@@ -88,11 +98,19 @@ public:
 	bool iniciar_buscar_npc = false;
 	bool iniciar_buscar_tele = false;
 
+	bool active_buscar_registro = false;
+	bool iniciar_buscar_registro = false;
+
 	void cargar_evento_dalaran_npc();
 	void cargar_evento_dalaran_tele();
+	void registro_evento_dalaran();
+	void questadd(Player* player);
+	void Agregar_registro(int Guid);
+	void del_npc(int entry, Player *player);
 
 	Invacion_dalaran_tele event_dalaran_tele;
 	Invacion_dalaran_npc event_dalaran_npc;
+	Invacion_dalaran_registro event_dalaran_registro;
 
 };
 

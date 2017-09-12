@@ -38,7 +38,8 @@ enum Events
 	EVENT_WARN_BONE_STORM = 15,
 	EVENT_BONE_STORM_BEGIN = 14,
 	EVENT_GROUP_SPECIAL = 1,
-	EVENT_CLONE_PLAYER = 20
+	EVENT_CLONE_PLAYER = 16
+	
 };
 
 enum Summons
@@ -56,6 +57,7 @@ enum npc {
 
 enum BossSpells
 {
+	SPELL_SHROUD_OF_SORROW = 70986,
 	SPELL_LEGION_FLAME = 66197, // player should run away from raid because he triggers Legion Flame
 	SPELL_LEGION_FLAME_EFFECT = 66201, // used by trigger npc
 	SPELL_NETHER_POWER = 66228, // +20% of spell damage per stack, stackable up to 5/10 times, must be dispelled/stealed
@@ -65,31 +67,26 @@ enum BossSpells
 	SPELL_BURNING_INFERNO = 66242, // triggered by Incinerate Flesh
 	SPELL_INFERNAL_ERUPTION = 66258, // summons Infernal Volcano
 	SPELL_INFERNAL_ERUPTION_EFFECT = 66252, // summons Felflame Infernal (3 at Normal and inifinity at Heroic)
-											//SPELL_NETHER_PORTAL = 66269, // summons Nether Portal
-											//SPELL_NETHER_PORTAL_EFFECT = 66263, // summons Mistress of Pain (1 at Normal and infinity at Heroic)
-
-											SPELL_BERSERK = 64238, // unused
-
-																   // Mistress of Pain spells
-																   SPELL_SHIVAN_SLASH = 67098,
-																   SPELL_SPINNING_STRIKE = 66283,
-																   SPELL_MISTRESS_KISS = 66336,
-																   SPELL_FEL_INFERNO = 67047,
-																   SPELL_FEL_STREAK = 66494,
-																   SPELL_LORD_HITTIN = 66326,   // special effect preventing more specific spells be cast on the same player within 10 seconds
-																   SPELL_MISTRESS_KISS_DAMAGE_SILENCE = 66359,
-																   SPELL_INSANITY = 57496, //Dummy
-																   INSANITY_VISUAL = 57561,
-																   SPELL_INSANITY_TARGET = 57508,
-																   SPELL_MIND_FLAY = 57941,
-																   SPELL_SHADOW_BOLT_VOLLEY = 57942,
-																   SPELL_SHIVER = 57949,
-																   SPELL_CLONE_PLAYER = 57507, //cast on player during insanity
-																   SPELL_INSANITY_PHASING_1 = 57508,
-																   SPELL_INSANITY_PHASING_2 = 57509,
-																   SPELL_INSANITY_PHASING_3 = 57510,
-																   SPELL_INSANITY_PHASING_4 = 57511,
-																   SPELL_INSANITY_PHASING_5 = 57512
+	SPELL_BERSERK = 64238, // unused															   // Mistress of Pain spells
+	SPELL_SHIVAN_SLASH = 67098,
+	SPELL_SPINNING_STRIKE = 66283,
+	SPELL_MISTRESS_KISS = 66336,
+	SPELL_FEL_INFERNO = 67047,
+	SPELL_FEL_STREAK = 66494,
+	SPELL_LORD_HITTIN = 66326,   // special effect preventing more specific spells be cast on the same player within 10 seconds
+	SPELL_MISTRESS_KISS_DAMAGE_SILENCE = 66359,
+	SPELL_INSANITY = 57496, //Dummy
+	INSANITY_VISUAL = 57561,
+	SPELL_INSANITY_TARGET = 57508,
+	SPELL_MIND_FLAY = 57941,
+	SPELL_SHADOW_BOLT_VOLLEY = 57942,
+	SPELL_SHIVER = 57949,
+	SPELL_CLONE_PLAYER = 57507, //cast on player during insanity
+	SPELL_INSANITY_PHASING_1 = 57508,
+	SPELL_INSANITY_PHASING_2 = 57509,
+	SPELL_INSANITY_PHASING_3 = 57510,
+	SPELL_INSANITY_PHASING_4 = 57511,
+	SPELL_INSANITY_PHASING_5 = 57512
 
 };
 
@@ -174,6 +171,9 @@ public:
 
 		void EnterCombat(Unit* /*who*/) override
 		{
+			if(me->GetMapId() == 571 && me->GetAreaId() == 4613)
+				DoCast(me, SPELL_SHROUD_OF_SORROW, true);
+
 			events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 10 * IN_MILLISECONDS);
 			events.ScheduleEvent(EVENT_FEL_FIREBALL, 5 * IN_MILLISECONDS); //5 segundo
 			events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));

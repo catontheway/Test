@@ -44,6 +44,7 @@ void invacion_dalaran::cargar_evento_dalaran_npc() {
 		npc.tipo[i] = npc_evento_dalaran[1].GetInt8();
 		npc.detalle[i] = npc_evento_dalaran[2].GetString();
 		i++;
+		npcs_evento->NextRow();
 	}
 	sinvacion_dalaran->active_buscar_npc = true;
 	sinvacion_dalaran->event_dalaran_npc = npc;
@@ -57,7 +58,7 @@ void invacion_dalaran::cargar_evento_dalaran_tele() {
 		return;
 
 	TC_LOG_INFO("server.loading", "Cargando configuraciones de Evento xyzo npcs");
-	QueryResult tele_total_db = WorldDatabase.PQuery("select count(*) as total from evento_dalaran_tele;");
+	QueryResult tele_total_db = WorldDatabase.PQuery("select count(*) as total FROM evento_dalaran_tele;");
 	Field *total_tele = tele_total_db->Fetch();
 	Invacion_dalaran_tele tele;
 	tele.Scantidad(total_tele[0].GetInt8());
@@ -66,8 +67,8 @@ void invacion_dalaran::cargar_evento_dalaran_tele() {
 		sinvacion_dalaran->active_buscar_tele = false;
 		return;
 	}
-	
-	QueryResult teles_evento = WorldDatabase.PQuery("select entry, x, y ,z ,o from evento_dalaran_tele;");
+	TC_LOG_INFO("server.loading", "Cargando configuraciones de Evento xyz");
+	QueryResult teles_evento = WorldDatabase.PQuery("Select entry,x,y,z,o From evento_dalaran_tele;");
 	int i = 0;
 	while (Field *tele_evento_dalaran = teles_evento->Fetch()) {
 		tele.entry[i] = tele_evento_dalaran[0].GetInt8();
@@ -76,6 +77,7 @@ void invacion_dalaran::cargar_evento_dalaran_tele() {
 		tele.z[i] = tele_evento_dalaran[3].GetFloat();
 		tele.o[i] = tele_evento_dalaran[4].GetFloat();
 		i++;
+		teles_evento->NextRow();
 	}
 	sinvacion_dalaran->active_buscar_tele = true;
 	sinvacion_dalaran->event_dalaran_tele = tele;
@@ -83,41 +85,64 @@ void invacion_dalaran::cargar_evento_dalaran_tele() {
 }
 
 
-class item_invacion_dalaran : public ItemScript
-{
-public:
-	item_invacion_dalaran() : ItemScript("item_invacion_dalaran") { }
 
-	bool OnUse(Player* player, Item* item /*item*/, SpellCastTargets const& targets) override{
-		if (player->GetGroup()->GetLeaderGUID() == item->ToPlayer()->GetGUID() && player->GetMapId() == 571 || player->GetSession()->GetSecurity()>2) {
-			if (player->GetPositionX() == x && player->GetPositionY() == y && player->GetPositionZ() == z && player->GetOrientation() == o || player->GetPositionX() == xx && player->GetPositionY() == yy && player->GetPositionZ() == zz && player->GetOrientation() == oo || player->GetSession()->GetSecurity()>2) {
-				player->CastSpell(player, 72523, false);
-				for (int i = 0; i < sinvacion_dalaran->event_dalaran_tele.cantidad; i++) {
-					for (int j = 0; j < sinvacion_dalaran->event_dalaran_npc.cantidad; j++) {
-						if (sinvacion_dalaran->event_dalaran_npc.entry[j] == sinvacion_dalaran->event_dalaran_tele.entry[i]) {
-							const Position tele = { sinvacion_dalaran->event_dalaran_tele.x[j], sinvacion_dalaran->event_dalaran_tele.y[j], sinvacion_dalaran->event_dalaran_tele.z[j], sinvacion_dalaran->event_dalaran_tele.o[j] };
-							player->SummonCreature(sinvacion_dalaran->event_dalaran_npc.entry[j], tele, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-						}
-					}
-				}
-				player->RemoveAura(72523);
-				
+void invacion_dalaran::registro_evento_dalaran() {
 
-			}
-		}
-		return true;
+	if (sinvacion_dalaran->iniciar_buscar_registro)
+		return;
+
+	TC_LOG_INFO("server.loading", "Cargando configuraciones de Evento Registro player");
+	QueryResult registro_total = WorldDatabase.PQuery("select count(*) as total from registro_evento_dalaran;");
+	Field *registro_total_ = registro_total->Fetch();
+	Invacion_dalaran_registro registro;
+	registro.Scantidad(registro_total_[0].GetInt8());
+
+	if (registro.cantidad == 0) {
+		sinvacion_dalaran->active_buscar_registro = false;
+		return;
 	}
-};
 
-class Invacion_dalaran  : public CreatureScript
-{
-public:
-	Invacion_dalaran() : CreatureScript("Invacion_dalaran") { }
+	QueryResult registro_evento = WorldDatabase.PQuery("select guid from registro_evento_dalaran;");
+	int i = 0;
+	while (Field *registro_evento_dalaran = registro_evento->Fetch()) {
+		registro.Guid[i] = registro_evento_dalaran[0].GetInt8();
+		i++;
+		registro_evento->NextRow();
+	}
+	sinvacion_dalaran->active_buscar_registro = true;
+	sinvacion_dalaran->event_dalaran_registro = registro;
+	sinvacion_dalaran->iniciar_buscar_registro = true;
+}
 
+void invacion_dalaran::Agregar_registro(int Guid) {
+	WorldDatabase.PExecute(std::string("INSERT into registro_evento_dalaran(guid) VALUES('%d');",Guid));
+}
 
-	bool OnGossipHello(Player* player, Creature* creature)
-	{
+void invacion_dalaran::del_npc(int entry, Player *player) {
+	ObjectGuid::LowType lowguid = entry;
+	Creature* unit = nullptr;
 
+	if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
+		unit = player->GetMap()->GetCreature(ObjectGuid(HighGuid::Unit, cr_data->id, lowguid));
+
+	unit->CombatStop();
+	unit->DeleteFromDB();
+	unit->AddObjectToRemoveList();
+}
+
+void invacion_dalaran::questadd(Player* player) {
+
+	bool verificar = false;
+
+	
+	
+	for (int i = 0; i < sinvacion_dalaran->event_dalaran_registro.cantidad; i++) {
+		if (sinvacion_dalaran->event_dalaran_registro.Guid[i] == player->GetGUID()) {
+			verificar = true;
+		}
+	}
+
+	if (!verificar) {
 		if (Quest const* quest = sObjectMgr->GetQuestTemplate(25501))
 		{
 			if (!quest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
@@ -143,45 +168,90 @@ public:
 				if (quest->GetSrcSpell() > 0)
 					player->CastSpell(player, quest->GetSrcSpell(), true);
 			}
-			
+
 			if (player->CanCompleteQuest(25501)) {
 				player->CompleteQuest(25501);
+				sinvacion_dalaran->Agregar_registro(player->GetGUID());
 			}
 		}
 		player->SetDivider(ObjectGuid::Empty);
+	}	
+}
 
+class item_invacion_dalaran : public ItemScript
+{
+public:
+	item_invacion_dalaran() : ItemScript("item_invacion_dalaran") { }
 
-		if (!player->GetGroup() || player->GetSession()->GetSecurity()>2)
+	bool OnUse(Player* player, Item* item /*item*/, SpellCastTargets const& targets) override{
+		if (player->GetGroup()->GetLeaderGUID() == item->ToPlayer()->GetGUID() && player->GetMapId() == 571 || player->GetSession()->GetSecurity()>2) {
+			if (player->GetPositionX() == x && player->GetPositionY() == y && player->GetPositionZ() == z && player->GetOrientation() == o || player->GetPositionX() == xx && player->GetPositionY() == yy && player->GetPositionZ() == zz && player->GetOrientation() == oo || player->GetSession()->GetSecurity()>2) {
+				player->CastSpell(player, 72523, false);
+				for (int i = 0; i < sinvacion_dalaran->event_dalaran_tele.cantidad; i++) {
+					for (int j = 0; j < sinvacion_dalaran->event_dalaran_npc.cantidad; j++) {
+						if (sinvacion_dalaran->event_dalaran_npc.entry[j] == sinvacion_dalaran->event_dalaran_tele.entry[i]) {
+							const Position tele = { sinvacion_dalaran->event_dalaran_tele.x[j], sinvacion_dalaran->event_dalaran_tele.y[j], sinvacion_dalaran->event_dalaran_tele.z[j], sinvacion_dalaran->event_dalaran_tele.o[j] };
+							player->SummonCreature(sinvacion_dalaran->event_dalaran_npc.entry[j], tele, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+						}
+					}
+				}
+				for (int i = 0; i < 60; i++) {
+					player->CastSpell(player, 27249, false);
+					player->CastSpell(player, 27249, false);
+					player->CastSpell(player, 27249, false);
+					boost::this_thread::sleep(boost::posix_time::seconds(1));
+				}
+				player->CastSpell(player, 72523, false);
+			}
+		}
+		return true;
+	}
+};
+
+class Invacion_dalaran  : public CreatureScript
+{
+public:
+	Invacion_dalaran() : CreatureScript("Invacion_dalaran") { }
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{
+		if (player->GetGroup() == NULL)
 			return false;
-		if (player->GetGroup() == NULL || player->GetSession()->GetSecurity()>2)
+
+		if (!player->GetGroup())
 			return false;
 
-		boost::gregorian::date date(boost::gregorian::day_clock::local_day());
-		auto day = date.day_of_week();
+		//sinvacion_dalaran->questadd(player);
+		if (!sinvacion_dalaran->active_buscar_tele)
+			sinvacion_dalaran->cargar_evento_dalaran_tele();
+			TC_LOG_INFO("server.loading", "Estoy aca...");
+		
+		if (!sinvacion_dalaran->active_buscar_npc)
+			sinvacion_dalaran->cargar_evento_dalaran_npc();
+			TC_LOG_INFO("server.loading", "Estoy aca...");
+		
+		if (!sinvacion_dalaran->active_buscar_registro)
+			sinvacion_dalaran->registro_evento_dalaran();
+			TC_LOG_INFO("server.loading", "Estoy aca...");
 
-		if (day == boost::date_time::Friday ||
-			day == boost::date_time::Saturday ||
-			day == boost::date_time::Sunday) {
+		TC_LOG_INFO("server.loading", "Estoy aca12");
+			player->PlayerTalkClass->ClearMenus();
 			//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "Evento Fin de semana", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-			if ((player->GetGroup()->GetMembersCount() >= 10) && player->GetGroup()->GetLeaderGUID() == player->GetGUID() || player->GetSession()->GetSecurity()>2)
+			if (player->GetSession()->GetSecurity() >= 2 || player->GetGroup()->GetMembersCount() >= 10 && player->GetGroup()->GetLeaderGUID() == player->GetGUID())
 			{
-				if (player->GetGroup()->GetLeaderGUID() == player->GetGUID()) {
+				TC_LOG_INFO("server.loading", "Estoy aca123");
+				if (player->GetSession()->GetSecurity() >= 2 || player->GetGroup()->GetLeaderGUID() == player->GetGUID()) {
 					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "Iniciar Evento", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 					//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "Cancelar Evento", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 				}
 				else {
 					ChatHandler(player->GetSession()).PSendSysMessage("Solo el lider puede activar el evento");
 				}
-				player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
 			}
 			else {
 				ChatHandler(player->GetSession()).PSendSysMessage("Deben de habe en tu grupo minimo 10 jugadores");
 			}
-		}
-		else {
-			ChatHandler(player->GetSession()).PSendSysMessage("Evento desactivado, activos solo dias sabados");
-		}
+			player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
 		return true;
 	}
 
@@ -189,24 +259,10 @@ public:
 	{
 		player->PlayerTalkClass->ClearMenus();
 
-		ChatHandler* handler;
+		ChatHandler* handler = NULL;
 		int minutos = 10, ii;
 		int n = rand() % 10 + 1;
-		ObjectGuid::LowType lowguid = npc_dala1;
-		Creature* unit = nullptr;
-
-		if (!lowguid)
-			return false;
-
-		if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-			unit = player->GetMap()->GetCreature(ObjectGuid(HighGuid::Unit, cr_data->id, lowguid));
-
-		if (!unit || unit->IsPet() || unit->IsTotem())
-		{
-			handler->SendSysMessage(LANG_SELECT_CREATURE);
-			handler->SetSentErrorMessage(true);
-			return false;
-		}
+		
 
 		switch (uiAction)
 		{
@@ -219,7 +275,7 @@ public:
 				
 					ChatHandler(player->GetSession()).PSendSysMessage("Tienen 10 minutos para encontrar a Señor Minerito, matarlo y traerme su tesoro");
 
-					std::string args = player->GetName + " y su Grupo ha comenzado el evento invacion a dalaran";
+					std::string args = player->GetName() + " y su Grupo ha comenzado el evento invacion a dalaran";
 					std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
 					str += args;
 					WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
@@ -255,17 +311,13 @@ public:
 							if (j == 0 && i == 10) {
 								// Delete the creature
 								ChatHandler(player->GetSession()).PSendSysMessage("O.o tu tiempo se acabo....");
-								unit->CombatStop();
-								unit->DeleteFromDB();
-								unit->AddObjectToRemoveList();
+								sinvacion_dalaran->del_npc(npc_dala1, player);
 								break;
 							}
 
 							if (player->GetGroup()->GetLeaderGUID() == player->GetGroup()->GetGUID() && player->isDead()) {
 								ChatHandler(player->GetSession()).PSendSysMessage("Tu lider ha muerto el juego acabo");
-								unit->CombatStop();
-								unit->DeleteFromDB();
-								unit->AddObjectToRemoveList();
+								sinvacion_dalaran->del_npc(npc_dala1, player);
 								break;
 							}
 							boost::this_thread::sleep(boost::posix_time::seconds(1));
@@ -291,12 +343,13 @@ public:
 	kill_boss_evento_dalaran() : PlayerScript("kill_boss_evento_dalaran") {}
 
 	void OnCreatureKill(Player* player, Creature* boss) {
-		Group* group;
-		Creature *creature;
+		Group* group = NULL;
+		Creature *creature = NULL;
 		
 		if (boss->isWorldBoss() && boss->GetEntry() == npc_dala1) {
 			//ChatHandler(player->GetSession()).PSendSysMessage("En hora buena haz matado al señor Señor Minerito");
 			player->AddItem(item1, 1);
+			sinvacion_dalaran->del_npc(npc_dala1, player);
 			int minutos = 2, ii = 0;
 			
 			for (int j = minutos - 1; j >= 0; j--) {
@@ -334,17 +387,21 @@ public:
 				if (member && member->GetSession() && member->IsInWorld())
 				{
 					if (member->GetGroup()->GetLeaderGUID() == member->GetGUID()) {
-						if (member->GetMapId() == 571 && member->GetZoneId() == 4613 && member->GetAreaId() == 463) {
+						if (member->GetMapId() == 571  && member->GetAreaId() == 4613) {
 							if (boss->isWorldBoss() && boss->GetEntry() == npc_dala2) {
+								sinvacion_dalaran->del_npc(npc_dala2, player);
 								total_mineritos += 1;
 							}
 							if (boss->isWorldBoss() && boss->GetEntry() == npc_dala3) {
+								sinvacion_dalaran->del_npc(npc_dala3, player);
 								total_mineritos += 1;
 							}
 							if (boss->isWorldBoss() && boss->GetEntry() == npc_dala4) {
+								sinvacion_dalaran->del_npc(npc_dala4, player);
 								total_mineritos += 1;
 							}
 							if (boss->isWorldBoss() && boss->GetEntry() == npc_dala5) {
+								sinvacion_dalaran->del_npc(npc_dala5, player);
 								total_mineritos += 1;
 							}
 						}
@@ -375,10 +432,6 @@ public:
 		}
 	}
 };
-
-
-
-
 
 
 void AddSC_World_Invacion_dalaran()

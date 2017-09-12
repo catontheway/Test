@@ -25,10 +25,43 @@
 #include "Player.h"
 
 
+class reload_commandscript_items_npcs : public CommandScript
+{
+public:
+	reload_commandscript_items_npcs() : CommandScript("reload_commandscript_items_npcs") { }
+
+	std::vector<ChatCommand> GetCommands() const override
+	{
+
+		static std::vector<ChatCommand> reload =
+		{
+			{ "item_templante reload",                   rbac::RBAC_PERM_COMMAND_GM,                  true,  &Handlereloaditems,              "" },
+			{ "creature_templante reload",               rbac::RBAC_PERM_COMMAND_GM,                         true,  &Handlereloadnpcs,                     "" },
+
+		};
+		return reload;
+	}
+
+	static bool Handlereloaditems(ChatHandler* handler, const char* /*args*/) {
+		TC_LOG_INFO("misc", "Re-Loading Item_template...");
+		sObjectMgr->LoadItemTemplates();
+		handler->SendGlobalGMSysMessage("Item_template has been reloaded!");
+		return true;
+	}
+
+
+	static bool Handlereloadnpcs(ChatHandler* handler, const char* /*args*/) {
+		TC_LOG_INFO("misc", "Re-Loading Creature_template...");
+		sObjectMgr->LoadCreatureTemplates();
+		handler->SendGlobalGMSysMessage("Creature_template has been reloaded!");
+		return true;
+	}
+};
+
 
 
 
 void AddSC_reload_item_npc()
 {
-    new lfg_commandscript();
+    new reload_commandscript_items_npcs();
 }
