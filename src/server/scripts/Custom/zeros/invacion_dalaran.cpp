@@ -345,87 +345,88 @@ public:
 	void OnCreatureKill(Player* player, Creature* boss) {
 		Group* group = NULL;
 		Creature *creature = NULL;
-		
-		if (boss->isWorldBoss() && boss->GetEntry() == npc_dala1) {
-			//ChatHandler(player->GetSession()).PSendSysMessage("En hora buena haz matado al señor Señor Minerito");
-			player->AddItem(item1, 1);
-			sinvacion_dalaran->del_npc(npc_dala1, player);
-			int minutos = 2, ii = 0;
-			
-			for (int j = minutos - 1; j >= 0; j--) {
-				ii = 59;
-				for (int i = ii; i >= 0; i--) {
-					player->CastSpell(player, 27249, false);
-					player->CastSpell(player, 27249, false);
-					player->CastSpell(player, 27249, false);
-					boost::this_thread::sleep(boost::posix_time::seconds(1));
+
+		if (player->GetGroup() != NULL) {
+			if (boss->isWorldBoss() && boss->GetEntry() == npc_dala1) {
+				//ChatHandler(player->GetSession()).PSendSysMessage("En hora buena haz matado al señor Señor Minerito");
+				player->AddItem(item1, 1);
+				sinvacion_dalaran->del_npc(npc_dala1, player);
+				int minutos = 2, ii = 0;
+
+				for (int j = minutos - 1; j >= 0; j--) {
+					ii = 59;
+					for (int i = ii; i >= 0; i--) {
+						player->CastSpell(player, 27249, false);
+						player->CastSpell(player, 27249, false);
+						player->CastSpell(player, 27249, false);
+						boost::this_thread::sleep(boost::posix_time::seconds(1));
+					}
 				}
-			}
-					
-			for (int i =0; i < 3; i++) {
-				player->CastSpell(player, 66258, false);
-				boost::this_thread::sleep(boost::posix_time::seconds(30));
-			}
-	
-			for (int i = 0; i < 3; i++) {
-				player->CastSpell(player, 66258, false);
-				boost::this_thread::sleep(boost::posix_time::seconds(20));
-			}
 
-			for (int i = 0; i < 6; i++) {
-				player->CastSpell(player, 66258, false);
-				boost::this_thread::sleep(boost::posix_time::seconds(10));
-			}
-				
-		}
+				for (int i = 0; i < 3; i++) {
+					player->CastSpell(player, 66258, false);
+					boost::this_thread::sleep(boost::posix_time::seconds(30));
+				}
+
+				for (int i = 0; i < 3; i++) {
+					player->CastSpell(player, 66258, false);
+					boost::this_thread::sleep(boost::posix_time::seconds(20));
+				}
+
+				for (int i = 0; i < 6; i++) {
+					player->CastSpell(player, 66258, false);
+					boost::this_thread::sleep(boost::posix_time::seconds(10));
+				}
 
 
-		for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next()) {
+				for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next()) {
 
-			if (Player* member = itr->GetSource())
-			{
-				if (member && member->GetSession() && member->IsInWorld())
-				{
-					if (member->GetGroup()->GetLeaderGUID() == member->GetGUID()) {
-						if (member->GetMapId() == 571  && member->GetAreaId() == 4613) {
-							if (boss->isWorldBoss() && boss->GetEntry() == npc_dala2) {
-								sinvacion_dalaran->del_npc(npc_dala2, player);
-								total_mineritos += 1;
+					if (Player* member = itr->GetSource())
+					{
+						if (member && member->GetSession() && member->IsInWorld())
+						{
+							if (member->GetGroup()->GetLeaderGUID() == member->GetGUID()) {
+								if (member->GetMapId() == 571 && member->GetAreaId() == 4613) {
+									if (boss->isWorldBoss() && boss->GetEntry() == npc_dala2) {
+										sinvacion_dalaran->del_npc(npc_dala2, player);
+										total_mineritos += 1;
+									}
+									if (boss->isWorldBoss() && boss->GetEntry() == npc_dala3) {
+										sinvacion_dalaran->del_npc(npc_dala3, player);
+										total_mineritos += 1;
+									}
+									if (boss->isWorldBoss() && boss->GetEntry() == npc_dala4) {
+										sinvacion_dalaran->del_npc(npc_dala4, player);
+										total_mineritos += 1;
+									}
+									if (boss->isWorldBoss() && boss->GetEntry() == npc_dala5) {
+										sinvacion_dalaran->del_npc(npc_dala5, player);
+										total_mineritos += 1;
+									}
+								}
 							}
-							if (boss->isWorldBoss() && boss->GetEntry() == npc_dala3) {
-								sinvacion_dalaran->del_npc(npc_dala3, player);
-								total_mineritos += 1;
-							}
-							if (boss->isWorldBoss() && boss->GetEntry() == npc_dala4) {
-								sinvacion_dalaran->del_npc(npc_dala4, player);
-								total_mineritos += 1;
-							}
-							if (boss->isWorldBoss() && boss->GetEntry() == npc_dala5) {
-								sinvacion_dalaran->del_npc(npc_dala5, player);
-								total_mineritos += 1;
-							}
+							std::string str = "|cFFFFFC00 mini minero muerto " + total_mineritos;
+							WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+							data << str;
+							member->GetSession()->SendPacket(&data);
 						}
 					}
-					std::string str = "|cFFFFFC00 mini minero muerto " + total_mineritos;
-					WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
-					data << str;
-					member->GetSession()->SendPacket(&data);
 				}
-			}
-		}
 
-		if (total_mineritos == 4) {
-			
-			for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next()) {
+				if (total_mineritos == 4) {
 
-				if (Player* member = itr->GetSource())
-				{
-					if (member && member->GetSession() && member->IsInWorld())
-					{
-						std::string str = "|cFFFFFC00 por fin hiciste algo bueno en tu vida ves y entrega la mision :P";
-						WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
-						data << str;
-						member->GetSession()->SendPacket(&data);
+					for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next()) {
+
+						if (Player* member = itr->GetSource())
+						{
+							if (member && member->GetSession() && member->IsInWorld())
+							{
+								std::string str = "|cFFFFFC00 por fin hiciste algo bueno en tu vida ves y entrega la mision :P";
+								WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+								data << str;
+								member->GetSession()->SendPacket(&data);
+							}
+						}
 					}
 				}
 			}
