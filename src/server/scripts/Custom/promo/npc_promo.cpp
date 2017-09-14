@@ -42,7 +42,7 @@ public:
 			pjinfo.NpcText = 800001;
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "De que trata la promocion? ", GOSSIP_SENDER_MAIN, PROMO_INFO);
 			
-			if (pjinfo.prest != 0 && pjinfo.pjlevel <= 80 || pjinfo.EsGM && pjinfo.pjlevel <= 80){ 
+			if (pjinfo.prest != 0 && pjinfo.pjlevel < 80 || pjinfo.EsGM && pjinfo.pjlevel < 80){ 
 				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, string("Recibir promo (Disponibles: " + (pjinfo.EsGM ? "Sin limite (GM)":to_string(pjinfo.prest) + " de " + to_string(pjinfo.pmax) + ", es por cuenta)")).c_str(), GOSSIP_SENDER_MAIN, PROMO_DAR);
 			}
 			else {
@@ -507,7 +507,7 @@ public:
 	}
 	bool activarProfes(PjInfo pjinfo)
 	{
-		int pjidmax = 4291;
+		int pjidmax = 0;
 		if (!pjinfo.PjConPromo)
 			return false;
 		if (pjinfo.pjid < pjidmax)

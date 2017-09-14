@@ -20,11 +20,11 @@ void promo::SIniciar()
 	Field *c = TC->Fetch();
 	Config CC;
 	CC.Activa = (c[0].GetInt8() == 0 ? false : true);
-	CC.ActivaRango = c[1].GetInt8();
-	CC.Players = c[2].GetInt8();
-	CC.VIP = c[3].GetInt8();
-	CC.Moderadores = c[4].GetInt8();
-	CC.GM = c[5].GetInt8();
+	CC.ActivaRango = c[1].GetInt8();	//Rango requrido para accedes a ella (default 0)
+	CC.Players = c[2].GetInt8();		//Limite de promos para players
+	CC.VIP = c[3].GetInt8();			//Limite de promos players VIP
+	CC.Moderadores = c[4].GetInt8();	//Limite de promos para Moderadores
+	CC.GM = c[5].GetInt8();				//Limite de promos para GMs
 	CC.PVP = (c[6].GetInt8() == 0 ? false : true);
 	CC.PVPRango = c[7].GetInt8();
 	CC.PVPLimite = c[8].GetInt8();
