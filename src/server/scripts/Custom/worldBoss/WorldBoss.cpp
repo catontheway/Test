@@ -38,7 +38,8 @@ enum Events
 	EVENT_WARN_BONE_STORM = 15,
 	EVENT_BONE_STORM_BEGIN = 14,
 	EVENT_GROUP_SPECIAL = 1,
-	EVENT_CLONE_PLAYER = 16
+	EVENT_CLONE_PLAYER = 16,
+	EVENT_DEDO_MUERTE = 17
 };
 
 enum Summons
@@ -85,8 +86,8 @@ enum BossSpells
 	SPELL_INSANITY_PHASING_2 = 57509,
 	SPELL_INSANITY_PHASING_3 = 57510,
 	SPELL_INSANITY_PHASING_4 = 57511,
-	SPELL_INSANITY_PHASING_5 = 57512
-
+	SPELL_INSANITY_PHASING_5 = 57512,
+	SPELL_DEDO_MUERTE = 31984
 };
 
 
@@ -170,9 +171,11 @@ public:
 
 		void EnterCombat(Unit* /*who*/) override
 		{
-			if(me->GetMapId() == 571 && me->GetAreaId() == 4613)
+			if (me->GetMapId() == 571 && me->GetAreaId() == 4613) {
 				DoCast(me, SPELL_SHROUD_OF_SORROW, true);
-
+				DoCast(me,27249, true);
+			}
+			
 			events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 10 * IN_MILLISECONDS);
 			events.ScheduleEvent(EVENT_FEL_FIREBALL, 5 * IN_MILLISECONDS); //5 segundo
 			events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
@@ -187,6 +190,7 @@ public:
 			me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
 			events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45000, 50000));
 			events.ScheduleEvent(EVENT_CLONE_PLAYER, urand(85000, 150000));
+			events.ScheduleEvent(EVENT_DEDO_MUERTE, urand(10000, 30000));
 		}
 
 
@@ -273,8 +277,6 @@ public:
 				case EVENT_PANIC:
 					me->Say("Por que huyes sabandija? ven aqui!", LANG_UNIVERSAL);
 					DoCastVictim(SPELL_PANIC);
-					boost::this_thread::sleep(boost::posix_time::seconds(1));
-					DoCastVictim(31984);
 					events.ScheduleEvent(EVENT_PANIC, 35000);
 					return;
 				case EVENT_FRENZY:
@@ -292,6 +294,7 @@ public:
 					me->Say("Sean parte de esta lluvia de huesos, sabandijas!", LANG_UNIVERSAL);
 					me->FinishSpell(CURRENT_MELEE_SPELL, false);
 					DoCast(me, SPELL_BONE_STORM);
+					DoCastVictim(31984);
 					events.DelayEvents(3000, EVENT_GROUP_SPECIAL);
 					events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050);
 					events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(90000, 95000));
@@ -300,6 +303,11 @@ public:
 					me->Say("Por que se desesperan sabandijas? vengan por mi!", LANG_UNIVERSAL);
 					DoCast(SPELL_INSANITY); //
 					events.ScheduleEvent(EVENT_CLONE_PLAYER, urand(85000, 150000));
+					return;
+				case EVENT_DEDO_MUERTE:
+					me->Say("Muerte Sabandija....", LANG_UNIVERSAL);
+					DoCast(SPELL_DEDO_MUERTE); //
+					events.ScheduleEvent(EVENT_DEDO_MUERTE, urand(10000, 30000));
 					return;
 				}
 			}

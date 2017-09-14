@@ -362,12 +362,16 @@ public:
 				player->SEND_GOSSIP_MENU(800004, creature->GetGUID()); 
 			break;
 		case PROMO_PROFE: 
-			pjinfo.DarRecetas = false; MenuProfe(pjinfo, creature, actions);
-			player->SEND_GOSSIP_MENU(800005, creature->GetGUID());
-			break;
+			if (pjinfo.plimit >= pjinfo.profm) {
+				pjinfo.DarRecetas = false; MenuProfe(pjinfo, creature, actions);
+				player->SEND_GOSSIP_MENU(800005, creature->GetGUID());
+				break;
+			}
 		case PROMO_PROFE_R: pjinfo.DarRecetas = true; MenuProfe(pjinfo, creature, actions);
-			player->SEND_GOSSIP_MENU(800005, creature->GetGUID());
-			break;
+			if(pjinfo.plimit >= pjinfo.profm) {
+				player->SEND_GOSSIP_MENU(800005, creature->GetGUID());
+				break;
+			}
 		case MENU_TELEPORT: MenuTeleport(pjinfo, creature, actions);
 			break;
 		case PROMO_BUZON: player->GetSession()->SendShowMailBox(player->GetGUID());
@@ -546,20 +550,22 @@ public:
 	}
 	void MenuProfe(PjInfo &pjinfo, Creature* creature, uint32 actions)
 	{
-		Player* player = pjinfo.player;
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Alquimia", GOSSIP_SENDER_MAIN, 1);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Herreria", GOSSIP_SENDER_MAIN, 2);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Peleteria", GOSSIP_SENDER_MAIN, 3);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sastreria", GOSSIP_SENDER_MAIN, 4);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Ingenieria", GOSSIP_SENDER_MAIN, 5);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Encantamiento", GOSSIP_SENDER_MAIN, 6);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Joyeria", GOSSIP_SENDER_MAIN, 7);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Inscripcion", GOSSIP_SENDER_MAIN, 8);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Herbologia", GOSSIP_SENDER_MAIN, 11);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Desuello", GOSSIP_SENDER_MAIN, 12);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Mineria", GOSSIP_SENDER_MAIN, 13);
-		//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Cooking", GOSSIP_SENDER_MAIN, 9);
-		//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "First Aid", GOSSIP_SENDER_MAIN, 10);
+		if (pjinfo.profm <= pjinfo.plimit) {
+			Player* player = pjinfo.player;
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Alquimia", GOSSIP_SENDER_MAIN, 1);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Herreria", GOSSIP_SENDER_MAIN, 2);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Peleteria", GOSSIP_SENDER_MAIN, 3);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sastreria", GOSSIP_SENDER_MAIN, 4);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Ingenieria", GOSSIP_SENDER_MAIN, 5);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Encantamiento", GOSSIP_SENDER_MAIN, 6);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Joyeria", GOSSIP_SENDER_MAIN, 7);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Inscripcion", GOSSIP_SENDER_MAIN, 8);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Herbologia", GOSSIP_SENDER_MAIN, 11);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Desuello", GOSSIP_SENDER_MAIN, 12);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Mineria", GOSSIP_SENDER_MAIN, 13);
+			//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Cooking", GOSSIP_SENDER_MAIN, 9);
+			//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "First Aid", GOSSIP_SENDER_MAIN, 10);
+		}
 	}
 	void MenuSetPVP(PjInfo pjinfo, int &registros, int &setid)
 	{
