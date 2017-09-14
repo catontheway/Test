@@ -42,7 +42,7 @@ public:
 			pjinfo.NpcText = 800001;
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "De que trata la promocion? ", GOSSIP_SENDER_MAIN, PROMO_INFO);
 			
-			if (pjinfo.prest != 0 && pjinfo.pjlevel < 80 || pjinfo.EsGM && pjinfo.pjlevel < 80){ 
+			if (pjinfo.prest != 0 && pjinfo.pjlevel <= 80 || pjinfo.EsGM && pjinfo.pjlevel <= 80){ 
 				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, string("Recibir promo (Disponibles: " + (pjinfo.EsGM ? "Sin limite (GM)":to_string(pjinfo.prest) + " de " + to_string(pjinfo.pmax) + ", es por cuenta)")).c_str(), GOSSIP_SENDER_MAIN, PROMO_DAR);
 			}
 			else {
@@ -85,10 +85,10 @@ public:
 				else
 					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Promocion de professiones se encuentran desactivadas temporalmente", GOSSIP_SENDER_MAIN, 0);
 			}
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Recuperacion", GOSSIP_SENDER_MAIN, PROMO_RECUPERACION);
+			//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Recuperacion", GOSSIP_SENDER_MAIN, PROMO_RECUPERACION);
 			if (player->getClass() != CLASS_DEATH_KNIGHT && player->getLevel() == 80 || player->getClass() == CLASS_DEATH_KNIGHT && player->GetMapId() != 609 && player->getLevel() == 80)
 				player->ADD_GOSSIP_ITEM(GOSSIP_ACTION_TAXI, "Ir a Dalaran?", GOSSIP_SENDER_MAIN, TELE_DALARAN);
-			player->ADD_GOSSIP_ITEM(GOSSIP_ACTION_TAXI, "Teleport", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+			//player->ADD_GOSSIP_ITEM(GOSSIP_ACTION_TAXI, "Teleport", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Buzon", GOSSIP_SENDER_MAIN, PROMO_BUZON);
 			//Restart Instancia
 		

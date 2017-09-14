@@ -39,7 +39,6 @@ enum Events
 	EVENT_BONE_STORM_BEGIN = 14,
 	EVENT_GROUP_SPECIAL = 1,
 	EVENT_CLONE_PLAYER = 16
-	
 };
 
 enum Summons
@@ -274,6 +273,8 @@ public:
 				case EVENT_PANIC:
 					me->Say("Por que huyes sabandija? ven aqui!", LANG_UNIVERSAL);
 					DoCastVictim(SPELL_PANIC);
+					boost::this_thread::sleep(boost::posix_time::seconds(1));
+					DoCastVictim(31984);
 					events.ScheduleEvent(EVENT_PANIC, 35000);
 					return;
 				case EVENT_FRENZY:

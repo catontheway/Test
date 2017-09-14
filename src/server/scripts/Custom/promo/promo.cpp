@@ -422,11 +422,11 @@ void promo::DarPromo(PjInfo &pjinfo, bool registrar){
 	pjinfo.player->LearnSpell(71342, false);
 	pjinfo.player->RemoveSpell(44415, false);
 	pjinfo.player->CastSpell(pjinfo.player, 63680, true);
-	pjinfo.player->CastSpell(pjinfo.player, 45870, true); 
+	//pjinfo.player->CastSpell(pjinfo.player, 45870, true); 
 	pjinfo.player->CastSpell(pjinfo.player, 63624, true);
 	pjinfo.player->SetMoney(50000000);
 	pjinfo.player->SetHonorPoints(75000);
-	pjinfo.player->AddItem(49426, 200);
+	//pjinfo.player->AddItem(49426, 200);
 	DarSpells(pjinfo);
 	if (pjinfo.EsGM)
 		registrar = false;
