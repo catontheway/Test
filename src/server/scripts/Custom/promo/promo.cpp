@@ -290,12 +290,12 @@ void promo::PjPromo(PjInfo &pjinfo)
 		return;
 	}
 	pjinfo.PjConPromo = true;
-	pjinfo.pid = f1[1].GetInt32();
+	pjinfo.pjid = f1[1].GetInt32();
 
 
 	int xp = 0; int xpr = 0;
 	int xe = 0; int xer = 0;
-	QueryResult r = CharacterDatabase.PQuery("select(select count(*) from promo_get where promo_id = %d and class = 'pve') as pve, (select count(*) from promo_get where promo_id = %d and class = 'pvp') as pvp", pjinfo.pid, pjinfo.pid);
+	QueryResult r = CharacterDatabase.PQuery("select(select count(*) from promo_get where promo_id = %d and class = 'pve') as pve, (select count(*) from promo_get where promo_id = %d and class = 'pvp') as pvp", pjinfo.pjid, pjinfo.pjid);
 	Field* f = r->Fetch();
 	if (f[0].GetInt32() == 0)
 	{
@@ -310,14 +310,14 @@ void promo::PjPromo(PjInfo &pjinfo)
 
 	if (xe == 0)
 	{
-		QueryResult re = CharacterDatabase.PQuery("select (select count(*) from promo_get where promo_id = %d and class = 'pve') as pve, (select count(*) from promo_get where promo_id = %d and class = 'pve' and `set`is null) as pver", pjinfo.pid, pjinfo.pid);
+		QueryResult re = CharacterDatabase.PQuery("select (select count(*) from promo_get where promo_id = %d and class = 'pve') as pve, (select count(*) from promo_get where promo_id = %d and class = 'pve' and `set`is null) as pver", pjinfo.pjid, pjinfo.pjid);
 		Field* fe = re->Fetch();
 		xe = fe[0].GetInt32();
 		xer = fe[1].GetInt32();
 	}
 	if (xp == 0)
 	{
-		QueryResult rp = CharacterDatabase.PQuery("select (select count(*) from promo_get where promo_id = %d and class = 'pvp') as pvp, (select count(*) from promo_get where promo_id = %d and class = 'pvp' and `set`is null) as pvpr", pjinfo.pid, pjinfo.pid);
+		QueryResult rp = CharacterDatabase.PQuery("select (select count(*) from promo_get where promo_id = %d and class = 'pvp') as pvp, (select count(*) from promo_get where promo_id = %d and class = 'pvp' and `set`is null) as pvpr", pjinfo.pjid, pjinfo.pjid);
 		Field* fp = rp->Fetch();
 		xp = fp[0].GetInt32();
 		xpr = fp[1].GetInt32();
@@ -357,7 +357,7 @@ void promo::AumentarSets(PjInfo &pjinfo, int cantidad, string clase, string moti
 {
 	for (int i = 0; i < cantidad; i++)
 	{
-		CharacterDatabase.PExecute(string("INSERT INTO promo_get(promo_id, class, motivo, detalles) VALUES ("+to_string(pjinfo.pid)+",'"+clase+"','"+motivo+"', '" + detalles + "');"));
+		CharacterDatabase.PExecute(string("INSERT INTO promo_get(promo_id, class, motivo, detalles) VALUES ("+to_string(pjinfo.pjid)+",'"+clase+"','"+motivo+"', '" + detalles + "');"));
 	}
 }
 string promo::FechayHora() 
@@ -518,7 +518,7 @@ void promo::DarSet(PjInfo &pjinfo, string clase, int setid, bool registrar)
 }
 void promo::RegistrarSet(PjInfo pjinfo, string clase, int setid)
 {
-	CharacterDatabase.PExecute(string("update promo_get set fecha = '" + FechayHora() + "', `set` = %d where promo_id = %d and class = '" + clase + "' and `set` is null LIMIT 1").c_str(), setid, pjinfo.pid);
+	CharacterDatabase.PExecute(string("update promo_get set fecha = '" + FechayHora() + "', `set` = %d where promo_id = %d and class = '" + clase + "' and `set` is null LIMIT 1").c_str(), setid, pjinfo.pjid);
 }
 void promo::RegistrarProfe(PjInfo pjinfo, SkillType skill)
 {

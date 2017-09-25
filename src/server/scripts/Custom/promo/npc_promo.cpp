@@ -16,17 +16,37 @@ public:
 	npc_promo() : CreatureScript("npc_promo") { }
 
 	
-	bool OnGossipHello(Player* player, Creature* creature)
-	{
-		spromo->SIniciar();
-		if (player->IsInCombat())
-			return false;
-		PjInfo pjinfo;
-		spromo->GetPjInfo(pjinfo, player);
-		MenuPromo1(creature, pjinfo);
-		return true;
+		bool OnGossipHello(Player* player, Creature* creature)
+		{
+			spromo->SIniciar();
+			if (player->IsInCombat())
+				return false;
+			PjInfo pjinfo;
+			spromo->GetPjInfo(pjinfo, player);
+			MenuPromo1(creature, pjinfo);
+			return true;
+		}
+	void MenuPromo2(Creature* creature, PjInfo pjinfo) {
+		Player* player = pjinfo.player;
+		player->PlayerTalkClass->ClearMenus();
+		if (!spromo->Configuraciones.Activa) {
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Promociónes: desactivado.", GOSSIP_SENDER_MAIN, 0);
+		}
+		else
+		{
+			
+			
+			
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, string("PJ con promo: " + pjinfo.PjConPromo ? "SI" : "NO").c_str(), GOSSIP_SENDER_MAIN, 0);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, string("Promos disponibles: " + to_string(pjinfo.prest) + " de " + to_string(pjinfo.pmax)).c_str(), GOSSIP_SENDER_MAIN, 0);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, string("Recompensa de Set's por leveo: " + to_string(pjinfo.prest) + " de " + to_string(pjinfo.pmax)).c_str(), GOSSIP_SENDER_MAIN, 0);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Buzon", GOSSIP_SENDER_MAIN, PROMO_BUZON);
+		}
+		
+		
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Salir ", GOSSIP_SENDER_MAIN, 0);
+		player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 	}
-
 	void MenuPromo1(Creature* creature, PjInfo pjinfo){
 		Player* player = pjinfo.player;
 		player->PlayerTalkClass->ClearMenus();
@@ -304,7 +324,6 @@ public:
 	
 	// RESET_ INSTANCIA
 	
-	
 	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 actions)
 	{
 		PjInfo pjinfo;
@@ -328,8 +347,23 @@ public:
 			spromo->DarSet(pjinfo, "pve", setid, !pjinfo.EsGM);
 			player->CLOSE_GOSSIP_MENU();
 		}
+		if (actions > SET_LPVP && actions < SET_LPVE) {
+			setid = actions;
+			player->SendChatMessage("Opcion: %d", actions - 200);
+			spromo->DarSet(pjinfo, "lpvp", setid, !pjinfo.EsGM);
+			player->CLOSE_GOSSIP_MENU();
+		}
+		if (actions > SET_LPVE && actions < 2800) {
+			setid = actions;
+			player->SendChatMessage("Opcion: %d", actions - 200);
+			spromo->DarSet(pjinfo, "lpve", setid, !pjinfo.EsGM);
+			player->CLOSE_GOSSIP_MENU();
+		}
 		switch (actions)
 		{
+		case 1:
+			player->CLOSE_GOSSIP_MENU();
+			break;
 		case PROMO_INFO:
 			player->SEND_GOSSIP_MENU(800003, creature->GetGUID());
 			break;
@@ -472,7 +506,7 @@ public:
 		pjinfo.player->LearnSpell(54197, false);
 
 		if (pjinfo.PjConPromo)
-			CharacterDatabase.PExecute("update promo set recskill = 1 where promo_id = %d;", pjinfo.pid);
+			CharacterDatabase.PExecute("update promo set recskill = 1 where promo_id = %d;", pjinfo.pjid);
 		else
 		{
 			QueryResult q = CharacterDatabase.PQuery("select count(*), skills from promo_rest where pjid = %d", pjinfo.pjid);
@@ -523,7 +557,7 @@ public:
 		int pjidmax = 4291;
 		if (pjinfo.PjConPromo)
 		{
-			QueryResult q1 = CharacterDatabase.PQuery("select recskill from promo where promo_id = %d", pjinfo.pid);
+			QueryResult q1 = CharacterDatabase.PQuery("select recskill from promo where promo_id = %d", pjinfo.pjid);
 			Field* f1 = q1->Fetch();
 			return (f1[0].GetInt8() == 0 ? true : false);
 		}
@@ -1624,92 +1658,6 @@ public:
 	}
 };
 
-
-class custom_CongratsOnLevel : public PlayerScript
-{
-public:
-    custom_CongratsOnLevel() : PlayerScript("custom_CongratsOnLevel") { }
-
-    void OnLevelChanged(Player* player, uint8 newLevel)
-    {
-		switch(++newLevel){
-		
-			case 10:{
-				std::ostringstream ss;
-				ss << "|cffFF0000[Level Gaming]|r WoW-Legendary el player:  " << player->GetName() << " Demuestras que puedes dar tus primeros pasos avanzando satisfactoriamente al Nivel:  " << (uint32)newLevel;
-				sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
-			break;
-			}
-			case 20:{
-				std::ostringstream ss;
-				ss << "|cffFF0000[Level Gaming]|r WoW-Legendary el player:  " << player->GetName() << " Nuevas aventuras te esperan asi como nuevos retos en el Nivel:  " << (uint32)newLevel;
-				sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
-				 player->LearnSpell(33388, false);
-			break;	
-			}
-			case 30:{
-				std::ostringstream ss;
-				ss << "|cffFF0000[Level Gaming]|r WoW-Legendary el player:  " << player->GetName() << " Conoces nuevos caminos y es hora de tener nuevas metas en el Nivel:  " << (uint32)newLevel;
-				sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
-			break;	
-			}
-			case 40:{
-				std::ostringstream ss;
-				ss << "|cffFF0000[Level Gaming]|r WoW-Legendary el player:  " << player->GetName() << " Acabas de llegar a la mitad de tu aventura, demuestra que superaras todos los obstaculos en el Nivel:  " << (uint32)newLevel;
-				sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
-				player->LearnSpell(33391, false);
-			break;	
-			}
-			case 50:{
-				std::ostringstream ss;
-				ss << "|cffFF0000[Level Gaming]|r WoW-Legendary el player:  " << player->GetName() << " Haz demostrado ser autosuficiente y capaz, acaba con todos en el Nivel:  " << (uint32)newLevel;
-				sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
-			break;	
-			}
-			case 60:{
-				std::ostringstream ss;
-				ss << "|cffFF0000[Level Gaming]|r WoW-Legendary el player:  " << player->GetName() << " Defiende tu faccion! Lucha contra la Legión Ardiente en el Nivel:  " << (uint32)newLevel;
-				sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
-				player->LearnSpell(34090, false);
-			break;	
-			}
-			case 70:{
-				std::ostringstream ss;
-				ss << "|cffFF0000[Level Gaming]|r WoW-Legendary el player:  " << player->GetName() <<" Haz alcanzado el Nivel: " << (uint32)newLevel  <<", Los frios vientos de Rasganorte te esperan! ";
-				sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
-				player->LearnSpell(34091, false);
-			break;	
-			}
-			case 80:{
-				std::ostringstream ss;
-				ss << "|cffFF0000[Level Gaming]|r WoW-Legendary el player:  " << player->GetName() << " Haz alcanzado el Nivel:  " << (uint32)newLevel << "y con ello nuevas y emocionantes aventuras, conquista a tus enemigos y sobretodo supera tu propio ser!";
-				sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
-				player->LearnSpell(54197, false);
-
-				if(player->getRace()==1 || player->getRace()==3 || player->getRace()==4 || player->getRace()==7 || player->getRace()==11){
-					//ALIZ
-					//player->AddItem(12353,1);
-					player->LearnSpell(16083, false);
-				}
-				else{
-					//Horda
-					//player->AddItem(12330,1);
-					player->LearnSpell(16080, false);
-				}
-				
-				player->AddItem(33223,1);
-				player->AddItem(50250,1);
-				player->AddItem(44794,1);
-				break;
-			}
-			 default:
-       return;
-		}
-		
-	}
-};
-
-
 class XpWeekend : public PlayerScript
 {
     public:
@@ -1725,8 +1673,6 @@ class XpWeekend : public PlayerScript
 }
     void OnLogin(Player* player, bool /*firstLogin*/)
     {
-
-
      boost::gregorian::date date(boost::gregorian::day_clock::local_day());
 	 auto day = date.day_of_week();
 	 if(day == boost::date_time::Friday ||
@@ -1737,10 +1683,8 @@ class XpWeekend : public PlayerScript
     }
 };
 
-
 void AddSC_npc_promo()
 {
 	new npc_promo();
-	new custom_CongratsOnLevel();
 	new XpWeekend();
 }

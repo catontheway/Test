@@ -36,6 +36,7 @@ void AddSC_npc_promo();
 void AddSC_cs_promo();
 void AddSC_soccer();
 void AddSC_World_Invacion_dalaran();
+void AddSC_custom_CongratsOnLevel();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -60,4 +61,5 @@ void AddCustomScripts()
 	AddSC_cs_promo();
 	AddSC_soccer();
 	AddSC_World_Invacion_dalaran();
+	AddSC_custom_CongratsOnLevel();
 }

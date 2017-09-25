@@ -68,7 +68,6 @@ typedef struct PjInfo
 	int pOtrasEnIp;
 	
 	bool PjConPromo;
-	int pid;
 	int pvem;
 	int pver;
 	int pvpm;
@@ -803,7 +802,7 @@ enum warlock_spell
 
 //200 - 1000 SETS
 
-enum MENUS_ID{
+enum MENUS_ID {
 	PROMO_INFO = 1001,
 	PROMO_DAR = 1002,
 	PROMO_SET_PVP = 1003,
@@ -820,6 +819,8 @@ enum MENUS_ID{
 	TELE_DALARAN = 1098,
 	SET_PVP = 200,
 	SET_PVE = 600,
+	SET_LPVP = 2000,
+	SET_LPVE = 2400,
 	PJ_ELIMINADO = 10000
 	
 };

@@ -18,7 +18,6 @@ void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo /* movementInf
 {
 	if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & JUMP_HACK_DETECTION) == 0)
 		return;
-
 	uint32 key = player->GetGUID().GetCounter();
 
 	if (m_Players[key].GetLastOpcode() == MSG_MOVE_JUMP && opcode == MSG_MOVE_JUMP)
